@@ -1,0 +1,1 @@
+Error Code: 1452. Cannot add or update a child row: a foreign key constraint fails (`P1ML`.`assets`, CONSTRAINT `assets_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE)

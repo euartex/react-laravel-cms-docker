@@ -1,0 +1,53 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./services/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./app:/app
+    depends_on:
+      - node
+      - php
+    networks:
+      - app-network
+
+  node:
+    image: node:24.0.1
+    ports:
+      - "88:80"
+    volumes:
+      - ./front:/app
+    working_dir: /app
+    networks:
+      - app-network
+    command: sh -c "npm run start"
+
+  php:
+    build: ./services/php
+    container_name: php
+    volumes:
+      - ./back:/app
+    working_dir: /app
+    networks:
+      - app-network
+    command: sh -c "php artisan migrate & php artisan queue:work & php-fpm"
+
+  postgres:
+    image: postgres:17.4
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./services/postgres/data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
